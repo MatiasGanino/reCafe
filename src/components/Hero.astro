@@ -1,0 +1,93 @@
+---
+import EstadoApertura from "./EstadoApertura.astro";
+import { contacto, hoy } from "../data/cafeteria";
+---
+
+<section class="hero">
+  <div class="envoltura hero-grilla">
+    <div>
+      <p class="rotulo">{contacto.barrio.split(",")[0]} · Buenos Aires · desde {contacto.desde}</p>
+      <h1>RECAFE</h1>
+      <p class="hero-bajada">
+        Café de barrio. Abrimos a las ocho, la pastelería sale del horno a las nueve y media, y
+        cerramos cuando se termina.
+      </p>
+      <div class="acciones">
+        <a class="boton" href="#carta">Ver la carta</a>
+        <a class="enlace" href="#visita">Cómo llegar</a>
+      </div>
+    </div>
+
+    <aside class="ficha">
+      <EstadoApertura />
+      <h3>Hoy en la barra</h3>
+      <dl>
+        {
+          hoy.map((fila) => (
+            <>
+              <dt>{fila.clave}</dt>
+              <dd>{fila.valor}</dd>
+            </>
+          ))
+        }
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: clamp(44px, 7vw, 80px) 0 clamp(40px, 6vw, 68px);
+  }
+
+  .hero-grilla {
+    display: grid;
+    grid-template-columns: 1.3fr 0.85fr;
+    gap: clamp(32px, 6vw, 64px);
+    align-items: center;
+  }
+
+  .hero h1 {
+    margin: 14px 0 0;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-bajada {
+    margin-top: 20px;
+    font-size: 1.08rem;
+  }
+
+  .ficha {
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: 14px;
+    padding: 24px 22px;
+  }
+
+  .ficha h3 {
+    margin-top: 18px;
+  }
+
+  .ficha dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 9px 18px;
+    margin-top: 14px;
+    font-size: 14.5px;
+  }
+
+  .ficha dt {
+    color: var(--humo);
+  }
+
+  .ficha dd {
+    text-align: right;
+    font-weight: 500;
+  }
+
+  @media (max-width: 860px) {
+    .hero-grilla {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+import { horarioPorDia } from "../data/cafeteria";
+---
+
+<span class="estado" data-abierto="no" data-horarios={JSON.stringify(horarioPorDia)}>
+  <span class="punto"></span>
+  <span class="estado-texto">Consultando horario…</span>
+</span>
+
+<style>
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  .estado[data-abierto="si"] {
+    color: var(--verde);
+  }
+
+  .estado[data-abierto="no"] {
+    color: var(--terracota);
+  }
+</style>
+
+<script>
+  type Tramo = { abre: number; cierra: number; cierraTexto: string };
+
+  document.querySelectorAll<HTMLElement>(".estado[data-horarios]").forEach((chip) => {
+    const texto = chip.querySelector(".estado-texto");
+    if (!texto) return;
+
+    const horarios: Record<string, Tramo> = JSON.parse(chip.dataset.horarios ?? "{}");
+    const ahora = new Date();
+    const hoy = horarios[String(ahora.getDay())];
+    const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+    const abierto = !!hoy && minutos >= hoy.abre && minutos < hoy.cierra;
+
+    chip.dataset.abierto = abierto ? "si" : "no";
+    texto.textContent = abierto ? `Abierto hasta las ${hoy.cierraTexto}` : "Cerrado ahora";
+  });
+</script>

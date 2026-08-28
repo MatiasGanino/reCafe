@@ -1,0 +1,78 @@
+---
+import { antesDeVenir, comoLlegar, contacto, horariosVisibles } from "../data/cafeteria";
+
+const tarjetas = [
+  {
+    rotulo: "Dónde",
+    titulo: contacto.direccion,
+    lineas: [{ texto: contacto.barrio }, ...comoLlegar.map((texto) => ({ texto }))],
+  },
+  { rotulo: "Cuándo", titulo: "Horarios", lineas: horariosVisibles },
+  { rotulo: "Cómo es", titulo: "Antes de venir", lineas: antesDeVenir },
+];
+---
+
+<section class="seccion" id="visita">
+  <div class="envoltura">
+    <div class="encabezado revelar">
+      <p class="rotulo">Visitanos</p>
+      <h2>Un solo local, a propósito</h2>
+    </div>
+
+    <div class="tarjetas revelar">
+      {
+        tarjetas.map((t) => (
+          <div class="tarjeta">
+            <p class="rotulo">{t.rotulo}</p>
+            <h3>{t.titulo}</h3>
+            <ul>
+              {t.lineas.map((l) => (
+                <li>
+                  <span>{l.texto}</span>
+                  {"dato" in l && l.dato && <b>{l.dato}</b>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .tarjeta {
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: 14px;
+    padding: 26px 24px;
+  }
+
+  .tarjeta h3 {
+    margin: 10px 0 12px;
+  }
+
+  .tarjeta ul {
+    list-style: none;
+    font-size: 15px;
+    color: var(--humo);
+  }
+
+  .tarjeta li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 4px 0;
+  }
+
+  .tarjeta li b {
+    font-weight: 600;
+    color: var(--tinta);
+  }
+</style>

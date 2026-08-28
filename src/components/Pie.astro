@@ -1,0 +1,55 @@
+---
+import { contacto, redes } from "../data/cafeteria";
+
+const anio = new Date().getFullYear();
+
+const enlacesPie = [...redes, { texto: "Carta", href: "#carta" }];
+---
+
+<footer>
+  <div class="envoltura">
+    <p class="marca">RECAFE</p>
+    <ul class="redes">
+      {enlacesPie.map((r) => <li><a href={r.href}>{r.texto}</a></li>)}
+    </ul>
+    <p class="legal">
+      {contacto.direccion}, {contacto.barrio} · © {anio} RECAFE
+    </p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--linea);
+    padding: 48px 0 40px;
+    text-align: center;
+  }
+
+  footer .marca {
+    font-size: 1.7rem;
+    max-width: none;
+  }
+
+  .redes {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    list-style: none;
+    margin-top: 16px;
+    font-size: 15px;
+  }
+
+  .redes a {
+    color: var(--terracota);
+    text-decoration: none;
+  }
+
+  .redes a:hover {
+    color: var(--tinta);
+  }
+
+  .legal {
+    margin: 18px auto 0;
+    font-size: 13.5px;
+  }
+</style>

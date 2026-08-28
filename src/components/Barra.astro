@@ -1,0 +1,129 @@
+---
+const enlaces = [
+  { href: "#carta", texto: "Carta" },
+  { href: "#casa", texto: "La casa" },
+  { href: "#visita", texto: "Visitanos" },
+  { href: "#contacto", texto: "Contacto" },
+];
+---
+
+<header class="barra">
+  <div class="envoltura">
+    <a class="marca" href="#inicio">RECAFE</a>
+    <button class="hamburguesa" id="btnMenu" aria-expanded="false" aria-controls="navPrincipal">
+      Menú
+    </button>
+    <nav>
+      <ul class="menu-nav" id="navPrincipal">
+        {enlaces.map((e) => <li><a href={e.href}>{e.texto}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(251, 246, 240, 0.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .barra .envoltura {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 16px;
+  }
+
+  .menu-nav {
+    display: flex;
+    gap: 26px;
+    list-style: none;
+  }
+
+  .menu-nav a {
+    text-decoration: none;
+    font-size: 15px;
+    color: var(--humo);
+    transition: color 0.2s;
+  }
+
+  .menu-nav a:hover,
+  .menu-nav a:focus-visible {
+    color: var(--terracota);
+  }
+
+  .hamburguesa {
+    display: none;
+    background: none;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  @media (max-width: 680px) {
+    .hamburguesa {
+      display: block;
+    }
+
+    .menu-nav {
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      gap: 0;
+      background: var(--crema);
+      border-bottom: 1px solid var(--linea);
+      padding: 4px 24px 16px;
+    }
+
+    .menu-nav[hidden] {
+      display: none;
+    }
+
+    .menu-nav a {
+      display: block;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--linea);
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById("btnMenu");
+  const nav = document.getElementById("navPrincipal");
+
+  if (btn && nav) {
+    const chico = window.matchMedia("(max-width:680px)");
+
+    const ajustarNav = () => {
+      nav.hidden = chico.matches && btn.getAttribute("aria-expanded") !== "true";
+    };
+
+    btn.addEventListener("click", () => {
+      const abierto = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!abierto));
+      ajustarNav();
+    });
+
+    nav.addEventListener("click", (e) => {
+      if (e.target instanceof HTMLAnchorElement) {
+        btn.setAttribute("aria-expanded", "false");
+        ajustarNav();
+      }
+    });
+
+    window.addEventListener("resize", ajustarNav);
+    chico.addEventListener("change", ajustarNav);
+    ajustarNav();
+  }
+</script>

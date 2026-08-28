@@ -1,0 +1,149 @@
+---
+import { carta, grupos } from "../data/carta";
+---
+
+<section class="seccion" id="carta">
+  <div class="envoltura">
+    <div class="encabezado revelar">
+      <p class="rotulo">La carta</p>
+      <h2>Corta, y cambia</h2>
+      <p>
+        Doce cosas bien hechas antes que cuarenta a medias. Los precios son en pesos e incluyen el
+        servicio.
+      </p>
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtrar la carta">
+      {
+        grupos.map((g, i) => (
+          <button class="filtro" data-grupo={g.id} aria-pressed={String(i === 0)}>
+            {g.etiqueta}
+          </button>
+        ))
+      }
+    </div>
+
+    <ul class="carta">
+      {
+        carta.map((item) => (
+          <li class="item" data-grupo={item.grupo}>
+            <h3>{item.nombre}</h3>
+            <span class="precio">{item.precio}</span>
+            <p>
+              {item.descripcion}
+              {item.nota && <span class="nota"> {item.nota}</span>}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="vacio" hidden>No hay nada en esa categoría todavía. Probá con otra.</p>
+  </div>
+</section>
+
+<style>
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .filtro {
+    font: inherit;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    padding: 8px 18px;
+    color: var(--humo);
+    cursor: pointer;
+    transition:
+      background 0.18s,
+      color 0.18s,
+      border-color 0.18s;
+  }
+
+  .filtro:hover {
+    color: var(--tinta);
+    border-color: var(--durazno);
+  }
+
+  .filtro[aria-pressed="true"] {
+    background: var(--durazno);
+    border-color: var(--durazno);
+    color: var(--tinta);
+    font-weight: 600;
+  }
+
+  .carta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0 48px;
+    list-style: none;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .item[hidden] {
+    display: none;
+  }
+
+  .item h3 {
+    grid-column: 1;
+  }
+
+  .item .precio {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .item p {
+    grid-column: 1 / -1;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .item .nota {
+    color: var(--terracota);
+    font-weight: 600;
+  }
+
+  .vacio {
+    margin-top: 24px;
+  }
+</style>
+
+<script>
+  const seccion = document.getElementById("carta");
+
+  if (seccion) {
+    const filtros = seccion.querySelectorAll<HTMLButtonElement>(".filtro");
+    const items = seccion.querySelectorAll<HTMLElement>(".item");
+    const vacio = seccion.querySelector<HTMLElement>(".vacio");
+
+    filtros.forEach((filtro) => {
+      filtro.addEventListener("click", () => {
+        const grupo = filtro.dataset.grupo;
+        filtros.forEach((otro) => otro.setAttribute("aria-pressed", String(otro === filtro)));
+
+        let visibles = 0;
+        items.forEach((item) => {
+          const mostrar = grupo === "todo" || item.dataset.grupo === grupo;
+          item.hidden = !mostrar;
+          if (mostrar) visibles++;
+        });
+
+        if (vacio) vacio.hidden = visibles > 0;
+      });
+    });
+  }
+</script>

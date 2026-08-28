@@ -1,0 +1,29 @@
+---
+import { contacto } from "../data/cafeteria";
+---
+
+<section class="seccion" id="contacto">
+  <div class="envoltura centrado">
+    <p class="rotulo">Contacto</p>
+    <h2>Escribinos</h2>
+    <p>Eventos, alguna consulta, o si te olvidaste algo en la mesa de la ventana.</p>
+    <div class="acciones acciones--centradas">
+      <a class="boton" href={`mailto:${contacto.email}`}>{contacto.email}</a>
+      <a class="enlace" href={`tel:${contacto.telefonoLink}`}>{contacto.telefono}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .centrado {
+    text-align: center;
+  }
+
+  h2 {
+    margin-top: 8px;
+  }
+
+  p {
+    margin: 14px auto 0;
+  }
+</style>

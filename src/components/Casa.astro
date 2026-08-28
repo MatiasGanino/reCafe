@@ -1,0 +1,70 @@
+---
+import { contacto, detallesCasa } from "../data/cafeteria";
+---
+
+<section class="seccion" id="casa">
+  <div class="envoltura dos-columnas">
+    <div class="revelar">
+      <p class="rotulo">La casa</p>
+      <h2>Un café de barrio</h2>
+      <p>
+        Abrimos en {contacto.desde} en la misma esquina de siempre. Nos conocemos los nombres de
+        casi todos los que entran, y no tenemos planes de abrir otro local.
+      </p>
+      <p class="segundo">
+        Hacemos pocas cosas y las hacemos parecido todos los días. Si algo no sale bien, no lo
+        sacamos.
+      </p>
+    </div>
+
+    <ul class="detalles revelar">
+      {detallesCasa.map((d) => <li>{d}</li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: start;
+  }
+
+  h2 {
+    margin-top: 8px;
+  }
+
+  p {
+    margin-top: 16px;
+  }
+
+  p.segundo {
+    margin-top: 12px;
+  }
+
+  .detalles {
+    list-style: none;
+  }
+
+  .detalles li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--linea);
+    color: var(--humo);
+    font-size: 15.5px;
+  }
+
+  .detalles li:first-child {
+    padding-top: 0;
+  }
+
+  .detalles li:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 860px) {
+    .dos-columnas {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
