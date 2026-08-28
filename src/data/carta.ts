@@ -1,93 +1,131 @@
-export type Grupo = "espresso" | "filtrado" | "cocina";
+import { parse } from "csv-parse/sync";
+import { filasFallback } from "./carta-fallback";
+
+/** Una fila tal como viene de la planilla (o del fallback local). */
+export interface FilaCarta {
+  categoria: string;
+  nombre: string;
+  precio: string;
+  descripcion?: string;
+  nota?: string;
+  /** "sí" / "x" / "true" oculta el ítem sin borrarlo de la planilla. */
+  oculto?: string;
+}
 
 export interface ItemCarta {
   nombre: string;
   precio: string;
-  grupo: Grupo;
+  /** Slug de la categoría, el que usa el filtro: "Espresso" → "espresso". */
+  grupo: string;
   descripcion: string;
   nota?: string;
 }
 
-export const grupos: { id: Grupo | "todo"; etiqueta: string }[] = [
-  { id: "todo", etiqueta: "Todo" },
-  { id: "espresso", etiqueta: "Espresso" },
-  { id: "filtrado", etiqueta: "Filtrado" },
-  { id: "cocina", etiqueta: "Cocina" },
-];
+export interface Grupo {
+  id: string;
+  etiqueta: string;
+}
 
-export const carta: ItemCarta[] = [
-  {
-    nombre: "Espresso",
-    precio: "$2.900",
-    grupo: "espresso",
-    descripcion: "Mezcla de la casa, 18 g adentro, 36 g afuera.",
-  },
-  {
-    nombre: "Cortado",
-    precio: "$3.400",
-    grupo: "espresso",
-    descripcion: "Doble ristretto con un dedo de leche texturada.",
-  },
-  {
-    nombre: "Flat white",
-    precio: "$4.600",
-    grupo: "espresso",
-    descripcion: "Ocho onzas, sin azúcar agregada, en taza de cerámica.",
-  },
-  {
-    nombre: "Latte de vainilla",
-    precio: "$5.200",
-    grupo: "espresso",
-    descripcion: "Vainilla en chaucha macerada acá.",
-    nota: "Sin esencia",
-  },
-  {
-    nombre: "V60",
-    precio: "$5.400",
-    grupo: "filtrado",
-    descripcion: "Origen del día, molido al momento, 250 ml.",
-  },
-  {
-    nombre: "Prensa francesa",
-    precio: "$6.800",
-    grupo: "filtrado",
-    descripcion: "Para dos tazas. Te lo dejamos servir a vos.",
-  },
-  {
-    nombre: "Cold brew",
-    precio: "$5.000",
-    grupo: "filtrado",
-    descripcion: "Dieciocho horas en frío, servido sobre hielo grande.",
-  },
-  {
-    nombre: "Cascarita",
-    precio: "$3.800",
-    grupo: "filtrado",
-    descripcion: "Infusión de cáscara de café, caliente o helada.",
-    nota: "Sin cafeína alta",
-  },
-  {
-    nombre: "Tostado de campo",
-    precio: "$8.900",
-    grupo: "cocina",
-    descripcion: "Pan de masa madre, queso de sierra, jamón natural.",
-  },
-  {
-    nombre: "Huevos revueltos",
-    precio: "$9.600",
-    grupo: "cocina",
-    descripcion: "Tres huevos, ciboulette, tostada con manteca.",
-  },
-  {
-    nombre: "Rol de canela",
-    precio: "$4.700",
-    grupo: "cocina",
-    descripcion: "Sale del horno a las nueve y media. Suele volar.",
-  },
-  {
-    nombre: "Budín del día",
-    precio: "$4.200",
-    grupo: "cocina",
-    descripcion: "Preguntá en la barra: cambia según qué fruta haya.",
-  },
-];
+const URL_CSV = import.meta.env.CARTA_CSV_URL;
+
+/** "Panadería" → "panaderia" */
+const aSlug = (texto: string): string =>
+  texto
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const estaOculto = (valor?: string): boolean =>
+  ["si", "sí", "x", "true", "1"].includes((valor ?? "").trim().toLowerCase());
+
+/**
+ * Normaliza los encabezados para tolerar cómo los escriba el cliente:
+ * "Categoría", "CATEGORIA" y " categoria " llegan todos como "categoria".
+ */
+const normalizarClave = (clave: string): string => aSlug(clave).replace(/-/g, "");
+
+function leerCsv(texto: string): FilaCarta[] {
+  return parse(texto, {
+    columns: (encabezados: string[]) => encabezados.map(normalizarClave),
+    skip_empty_lines: true,
+    trim: true,
+    bom: true,
+  });
+}
+
+/** Valida las filas y arma la carta y los grupos del filtro. */
+function armarCarta(filas: FilaCarta[], origen: string) {
+  const items: ItemCarta[] = [];
+  const etiquetas = new Map<string, string>();
+
+  filas.forEach((fila, i) => {
+    // La fila 1 de la planilla son los encabezados, así que los datos arrancan en la 2.
+    const donde = `${origen}, fila ${i + 2}`;
+
+    // Fila en blanco: el cliente dejó espacio al final de la hoja, no es un error.
+    if (!fila.nombre && !fila.precio && !fila.categoria) return;
+    if (estaOculto(fila.oculto)) return;
+
+    for (const campo of ["categoria", "nombre", "precio"] as const) {
+      if (!fila[campo]?.trim()) {
+        throw new Error(`${donde}: falta «${campo}». Completá esa celda o borrá la fila entera.`);
+      }
+    }
+
+    const slug = aSlug(fila.categoria);
+    if (!etiquetas.has(slug)) etiquetas.set(slug, fila.categoria.trim());
+
+    items.push({
+      nombre: fila.nombre.trim(),
+      precio: fila.precio.trim(),
+      grupo: slug,
+      descripcion: fila.descripcion?.trim() ?? "",
+      ...(fila.nota?.trim() ? { nota: fila.nota.trim() } : {}),
+    });
+  });
+
+  if (items.length === 0) {
+    throw new Error(`${origen}: no hay ningún ítem para mostrar.`);
+  }
+
+  const grupos: Grupo[] = [
+    { id: "todo", etiqueta: "Todo" },
+    ...[...etiquetas].map(([id, etiqueta]) => ({ id, etiqueta })),
+  ];
+
+  return { items, grupos };
+}
+
+async function bajarDeLaPlanilla(url: string): Promise<FilaCarta[]> {
+  let res: Response;
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+  } catch (causa) {
+    throw new Error(
+      `No pude conectarme a Google Sheets para leer la carta. ` +
+        `Puede ser un corte de red o que la URL de CARTA_CSV_URL esté mal.`,
+      { cause: causa },
+    );
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      `No pude leer la carta desde Google Sheets (HTTP ${res.status}). ` +
+        `Revisá que la hoja siga publicada en Archivo → Compartir → Publicar en la web.`,
+    );
+  }
+
+  return leerCsv(await res.text());
+}
+
+// Sin URL configurada usamos la carta local; con URL, un error corta el build a propósito,
+// así el sitio se queda con el último deploy bueno en vez de publicar una carta rota.
+const { items, grupos: gruposArmados } = URL_CSV
+  ? armarCarta(await bajarDeLaPlanilla(URL_CSV), "planilla")
+  : armarCarta(filasFallback, "carta local");
+
+export const carta = items;
+export const grupos = gruposArmados;

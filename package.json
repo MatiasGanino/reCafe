@@ -12,7 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.2.9"
+    "astro": "^7.2.9",
+    "csv-parse": "^7.0.2"
   },
   "allowScripts": {
     "esbuild": true
