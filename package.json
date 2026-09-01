@@ -12,10 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/vercel": "^11.0.8",
     "astro": "^7.2.9",
-    "csv-parse": "^7.0.2"
+    "ioredis": "^5.11.1"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "vercel": "^59.10.0"
   }
 }

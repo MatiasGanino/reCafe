@@ -1,0 +1,222 @@
+---
+import PanelLayout from "../../layouts/PanelLayout.astro";
+import { actualizar, borrar, crear, leerCarta, mover, validar } from "../../data/carta";
+import type { DatosItem } from "../../data/carta";
+
+// Todo el panel funciona con formularios HTML normales: anda sin JavaScript,
+// y cada guardado termina en un redirect para que refrescar no reenvíe el form.
+let errores: Record<string, string> = {};
+let editando: string | null = null;
+let aviso: string | null = null;
+// Lo que vino en el POST, para repintar el formulario si la validación falla.
+let enviado: FormData | null = null;
+
+const paramsUrl = Astro.url.searchParams;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  enviado = form;
+  const accion = String(form.get("accion") ?? "");
+  const id = String(form.get("id") ?? "");
+
+  const datos: DatosItem = {
+    categoria: String(form.get("categoria") ?? ""),
+    nombre: String(form.get("nombre") ?? ""),
+    precio: String(form.get("precio") ?? ""),
+    descripcion: String(form.get("descripcion") ?? ""),
+    nota: String(form.get("nota") ?? ""),
+    oculto: form.get("oculto") === "on",
+  };
+
+  if (accion === "crear" || accion === "actualizar") {
+    errores = validar(datos);
+
+    if (Object.keys(errores).length === 0) {
+      if (accion === "crear") {
+        await crear(datos);
+        return Astro.redirect("/panel?ok=creado");
+      }
+      await actualizar(id, datos);
+      return Astro.redirect("/panel?ok=guardado");
+    }
+
+    // Con errores no redirigimos: repintamos el formulario con lo que había escrito.
+    editando = accion === "actualizar" ? id : null;
+  }
+
+  if (accion === "borrar") {
+    await borrar(id);
+    return Astro.redirect("/panel?ok=borrado");
+  }
+
+  if (accion === "subir" || accion === "bajar") {
+    await mover(id, accion === "subir" ? "arriba" : "abajo");
+    return Astro.redirect("/panel");
+  }
+}
+
+if (paramsUrl.has("editar")) editando = paramsUrl.get("editar");
+
+const avisos: Record<string, string> = {
+  creado: "Producto agregado.",
+  guardado: "Cambios guardados.",
+  borrado: "Producto eliminado.",
+};
+aviso = avisos[paramsUrl.get("ok") ?? ""] ?? null;
+
+const items = await leerCarta();
+const enEdicion = editando ? items.find((i) => i.id === editando) : null;
+const categorias = [...new Set(items.map((i) => i.categoria))];
+
+// Si el formulario volvió con errores, mostramos lo que el usuario había tipeado.
+const reenviado = Object.keys(errores).length > 0 ? enviado : null;
+const valor = (campo: keyof DatosItem): string => {
+  if (reenviado) return String(reenviado.get(campo) ?? "");
+  if (enEdicion) return String(enEdicion[campo] ?? "");
+  return "";
+};
+---
+
+<PanelLayout titulo="Carta · Panel RECAFE">
+  <header class="cabecera">
+    <div>
+      <h1>Carta</h1>
+      <p class="sutil">
+        {items.length} producto{items.length === 1 ? "" : "s"} ·
+        {items.filter((i) => i.oculto).length} oculto{items.filter((i) => i.oculto).length === 1 ? "" : "s"}
+      </p>
+    </div>
+    <a class="enlace" href="/" target="_blank" rel="noopener">Ver el sitio ↗</a>
+  </header>
+
+  {aviso && <p class="aviso">{aviso}</p>}
+
+  <section class="tarjeta">
+    <h2>{enEdicion ? `Editar: ${enEdicion.nombre}` : "Agregar producto"}</h2>
+
+    <form method="POST" class="formulario">
+      <input type="hidden" name="accion" value={enEdicion ? "actualizar" : "crear"} />
+      {enEdicion && <input type="hidden" name="id" value={enEdicion.id} />}
+
+      <label class="campo">
+        <span>Categoría</span>
+        <input
+          name="categoria"
+          list="categorias"
+          value={valor("categoria")}
+          aria-invalid={errores.categoria ? "true" : undefined}
+        />
+        <datalist id="categorias">
+          {categorias.map((c) => <option value={c} />)}
+        </datalist>
+        {errores.categoria && <em class="error">{errores.categoria}</em>}
+      </label>
+
+      <label class="campo">
+        <span>Nombre</span>
+        <input name="nombre" value={valor("nombre")} aria-invalid={errores.nombre ? "true" : undefined} />
+        {errores.nombre && <em class="error">{errores.nombre}</em>}
+      </label>
+
+      <label class="campo campo--chico">
+        <span>Precio</span>
+        <input
+          name="precio"
+          value={valor("precio")}
+          placeholder="$4.200"
+          aria-invalid={errores.precio ? "true" : undefined}
+        />
+        {errores.precio && <em class="error">{errores.precio}</em>}
+      </label>
+
+      <label class="campo campo--ancho">
+        <span>Descripción <i>opcional</i></span>
+        <input name="descripcion" value={valor("descripcion")} />
+      </label>
+
+      <label class="campo">
+        <span>Nota <i>opcional</i></span>
+        <input name="nota" value={valor("nota")} placeholder="Sin esencia" />
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="oculto" checked={enEdicion?.oculto} />
+        <span>No mostrar en la web</span>
+      </label>
+
+      <div class="acciones-form">
+        <button class="boton" type="submit">{enEdicion ? "Guardar cambios" : "Agregar"}</button>
+        {enEdicion && <a class="enlace" href="/panel">Cancelar</a>}
+      </div>
+    </form>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Productos</h2>
+
+    {
+      items.length === 0 ? (
+        <p class="sutil">Todavía no hay nada cargado.</p>
+      ) : (
+        <ul class="lista">
+          {items.map((item, i) => (
+            <li class:list={["fila", { "fila--oculta": item.oculto }]}>
+              <div class="orden">
+                <form method="POST">
+                  <input type="hidden" name="accion" value="subir" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button type="submit" disabled={i === 0} aria-label={`Subir ${item.nombre}`}>
+                    ↑
+                  </button>
+                </form>
+                <form method="POST">
+                  <input type="hidden" name="accion" value="bajar" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button
+                    type="submit"
+                    disabled={i === items.length - 1}
+                    aria-label={`Bajar ${item.nombre}`}
+                  >
+                    ↓
+                  </button>
+                </form>
+              </div>
+
+              <div class="datos">
+                <p class="titulo">
+                  {item.nombre}
+                  {item.oculto && <span class="chip">oculto</span>}
+                  {item.nota && <span class="chip chip--nota">{item.nota}</span>}
+                </p>
+                <p class="sutil">
+                  {item.categoria}
+                  {item.descripcion && ` · ${item.descripcion}`}
+                </p>
+              </div>
+
+              <span class="precio">{item.precio}</span>
+
+              <div class="acciones-fila">
+                <a class="enlace" href={`/panel?editar=${item.id}`}>Editar</a>
+                <form method="POST" data-confirmar={item.nombre}>
+                  <input type="hidden" name="accion" value="borrar" />
+                  <input type="hidden" name="id" value={item.id} />
+                  <button class="borrar" type="submit">Borrar</button>
+                </form>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</PanelLayout>
+
+<script>
+  // Confirmación al borrar. Sin JS el borrado sigue funcionando, solo que sin preguntar.
+  document.querySelectorAll<HTMLFormElement>("form[data-confirmar]").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      if (!confirm(`¿Borrar "${form.dataset.confirmar}"? No se puede deshacer.`)) e.preventDefault();
+    });
+  });
+</script>

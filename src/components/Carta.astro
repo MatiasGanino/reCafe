@@ -1,5 +1,7 @@
 ---
-import { carta, grupos } from "../data/carta";
+import { aSlug, leerCartaPublica } from "../data/carta";
+
+const { items: carta, grupos } = await leerCartaPublica();
 ---
 
 <section class="seccion" id="carta">
@@ -26,7 +28,7 @@ import { carta, grupos } from "../data/carta";
     <ul class="carta">
       {
         carta.map((item) => (
-          <li class="item" data-grupo={item.grupo}>
+          <li class="item" data-grupo={aSlug(item.categoria)}>
             <h3>{item.nombre}</h3>
             <span class="precio">{item.precio}</span>
             <p>

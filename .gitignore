@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+
+# salida del build de vercel
+.vercel/
+
+.vercel

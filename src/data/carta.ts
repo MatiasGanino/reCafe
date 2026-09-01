@@ -1,35 +1,48 @@
-import { parse } from "csv-parse/sync";
-import { filasFallback } from "./carta-fallback";
+import Redis from "ioredis";
+import inicial from "./carta.json";
 
-/** Una fila tal como viene de la planilla (o del fallback local). */
-export interface FilaCarta {
+// En Vercel la credencial llega por process.env; en `astro dev` sale del .env,
+// que Astro carga en import.meta.env. Se referencia explícitamente porque Vite
+// reemplaza import.meta.env de forma estática: un acceso dinámico queda vacío.
+const url = process.env.REDIS_URL ?? import.meta.env.REDIS_URL;
+
+if (!url) {
+  throw new Error(
+    "Falta REDIS_URL. En Vercel: Storage → tu base → Connect Project. " +
+      "En local: `vercel env pull .env --environment=production`.",
+  );
+}
+
+// Una sola conexión por instancia de la función, reutilizada entre pedidos.
+const redis = new Redis(url, { maxRetriesPerRequest: 3 });
+
+const CLAVE = "recafe:carta";
+
+export interface ItemCarta {
+  id: string;
   categoria: string;
   nombre: string;
   precio: string;
-  descripcion?: string;
-  nota?: string;
-  /** "sí" / "x" / "true" oculta el ítem sin borrarlo de la planilla. */
-  oculto?: string;
-}
-
-export interface ItemCarta {
-  nombre: string;
-  precio: string;
-  /** Slug de la categoría, el que usa el filtro: "Espresso" → "espresso". */
-  grupo: string;
   descripcion: string;
   nota?: string;
+  oculto?: boolean;
 }
 
-export interface Grupo {
-  id: string;
-  etiqueta: string;
+/** Lo que manda el formulario del panel, antes de tener id. */
+export type DatosItem = Omit<ItemCarta, "id">;
+
+/** Mientras nadie haya guardado nada, vale la carta inicial del repo. */
+export async function leerCarta(): Promise<ItemCarta[]> {
+  const guardado = await redis.get(CLAVE);
+  return guardado ? (JSON.parse(guardado) as ItemCarta[]) : (inicial as ItemCarta[]);
 }
 
-const URL_CSV = import.meta.env.CARTA_CSV_URL;
+export async function guardarCarta(items: ItemCarta[]): Promise<void> {
+  await redis.set(CLAVE, JSON.stringify(items));
+}
 
 /** "Panadería" → "panaderia" */
-const aSlug = (texto: string): string =>
+export const aSlug = (texto: string): string =>
   texto
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -38,94 +51,70 @@ const aSlug = (texto: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-const estaOculto = (valor?: string): boolean =>
-  ["si", "sí", "x", "true", "1"].includes((valor ?? "").trim().toLowerCase());
+/** Lo que ve el público: sin ocultos, con las categorías del filtro. */
+export async function leerCartaPublica() {
+  const items = (await leerCarta()).filter((i) => !i.oculto);
 
-/**
- * Normaliza los encabezados para tolerar cómo los escriba el cliente:
- * "Categoría", "CATEGORIA" y " categoria " llegan todos como "categoria".
- */
-const normalizarClave = (clave: string): string => aSlug(clave).replace(/-/g, "");
-
-function leerCsv(texto: string): FilaCarta[] {
-  return parse(texto, {
-    columns: (encabezados: string[]) => encabezados.map(normalizarClave),
-    skip_empty_lines: true,
-    trim: true,
-    bom: true,
-  });
-}
-
-/** Valida las filas y arma la carta y los grupos del filtro. */
-function armarCarta(filas: FilaCarta[], origen: string) {
-  const items: ItemCarta[] = [];
   const etiquetas = new Map<string, string>();
-
-  filas.forEach((fila, i) => {
-    // La fila 1 de la planilla son los encabezados, así que los datos arrancan en la 2.
-    const donde = `${origen}, fila ${i + 2}`;
-
-    // Fila en blanco: el cliente dejó espacio al final de la hoja, no es un error.
-    if (!fila.nombre && !fila.precio && !fila.categoria) return;
-    if (estaOculto(fila.oculto)) return;
-
-    for (const campo of ["categoria", "nombre", "precio"] as const) {
-      if (!fila[campo]?.trim()) {
-        throw new Error(`${donde}: falta «${campo}». Completá esa celda o borrá la fila entera.`);
-      }
-    }
-
-    const slug = aSlug(fila.categoria);
-    if (!etiquetas.has(slug)) etiquetas.set(slug, fila.categoria.trim());
-
-    items.push({
-      nombre: fila.nombre.trim(),
-      precio: fila.precio.trim(),
-      grupo: slug,
-      descripcion: fila.descripcion?.trim() ?? "",
-      ...(fila.nota?.trim() ? { nota: fila.nota.trim() } : {}),
-    });
-  });
-
-  if (items.length === 0) {
-    throw new Error(`${origen}: no hay ningún ítem para mostrar.`);
+  for (const item of items) {
+    const slug = aSlug(item.categoria);
+    if (!etiquetas.has(slug)) etiquetas.set(slug, item.categoria);
   }
 
-  const grupos: Grupo[] = [
-    { id: "todo", etiqueta: "Todo" },
-    ...[...etiquetas].map(([id, etiqueta]) => ({ id, etiqueta })),
-  ];
-
-  return { items, grupos };
+  return {
+    items,
+    grupos: [
+      { id: "todo", etiqueta: "Todo" },
+      ...[...etiquetas].map(([id, etiqueta]) => ({ id, etiqueta })),
+    ],
+  };
 }
 
-async function bajarDeLaPlanilla(url: string): Promise<FilaCarta[]> {
-  let res: Response;
-  try {
-    res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
-  } catch (causa) {
-    throw new Error(
-      `No pude conectarme a Google Sheets para leer la carta. ` +
-        `Puede ser un corte de red o que la URL de CARTA_CSV_URL esté mal.`,
-      { cause: causa },
-    );
+export function validar(datos: DatosItem): Record<string, string> {
+  const errores: Record<string, string> = {};
+  for (const campo of ["categoria", "nombre", "precio"] as const) {
+    if (!datos[campo]?.trim()) errores[campo] = "No puede quedar vacío.";
   }
-
-  if (!res.ok) {
-    throw new Error(
-      `No pude leer la carta desde Google Sheets (HTTP ${res.status}). ` +
-        `Revisá que la hoja siga publicada en Archivo → Compartir → Publicar en la web.`,
-    );
-  }
-
-  return leerCsv(await res.text());
+  return errores;
 }
 
-// Sin URL configurada usamos la carta local; con URL, un error corta el build a propósito,
-// así el sitio se queda con el último deploy bueno en vez de publicar una carta rota.
-const { items, grupos: gruposArmados } = URL_CSV
-  ? armarCarta(await bajarDeLaPlanilla(URL_CSV), "planilla")
-  : armarCarta(filasFallback, "carta local");
+const limpiar = (datos: DatosItem, id: string): ItemCarta => ({
+  id,
+  categoria: datos.categoria.trim(),
+  nombre: datos.nombre.trim(),
+  precio: datos.precio.trim(),
+  descripcion: datos.descripcion?.trim() ?? "",
+  ...(datos.nota?.trim() ? { nota: datos.nota.trim() } : {}),
+  ...(datos.oculto ? { oculto: true } : {}),
+});
 
-export const carta = items;
-export const grupos = gruposArmados;
+export async function crear(datos: DatosItem): Promise<void> {
+  const items = await leerCarta();
+  const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  await guardarCarta([...items, limpiar(datos, id)]);
+}
+
+export async function actualizar(id: string, datos: DatosItem): Promise<void> {
+  const items = await leerCarta();
+  const i = items.findIndex((item) => item.id === id);
+  if (i === -1) return;
+
+  items[i] = limpiar(datos, id);
+  await guardarCarta(items);
+}
+
+export async function borrar(id: string): Promise<void> {
+  const items = await leerCarta();
+  await guardarCarta(items.filter((item) => item.id !== id));
+}
+
+/** Sube o baja un producto en el orden en que se muestran. */
+export async function mover(id: string, direccion: "arriba" | "abajo"): Promise<void> {
+  const items = await leerCarta();
+  const i = items.findIndex((item) => item.id === id);
+  const destino = direccion === "arriba" ? i - 1 : i + 1;
+  if (i === -1 || destino < 0 || destino >= items.length) return;
+
+  [items[i], items[destino]] = [items[destino], items[i]];
+  await guardarCarta(items);
+}

@@ -1,0 +1,88 @@
+[
+  {
+    "id": "i01",
+    "categoria": "Espresso",
+    "nombre": "Espresso",
+    "precio": "$2.900",
+    "descripcion": "Mezcla de la casa, 18 g adentro, 36 g afuera."
+  },
+  {
+    "id": "i02",
+    "categoria": "Espresso",
+    "nombre": "Cortado",
+    "precio": "$3.400",
+    "descripcion": "Doble ristretto con un dedo de leche texturada."
+  },
+  {
+    "id": "i03",
+    "categoria": "Espresso",
+    "nombre": "Flat white",
+    "precio": "$4.600",
+    "descripcion": "Ocho onzas, sin azúcar agregada, en taza de cerámica."
+  },
+  {
+    "id": "i04",
+    "categoria": "Espresso",
+    "nombre": "Latte de vainilla",
+    "precio": "$5.200",
+    "descripcion": "Vainilla en chaucha macerada acá.",
+    "nota": "Sin esencia"
+  },
+  {
+    "id": "i05",
+    "categoria": "Filtrado",
+    "nombre": "V60",
+    "precio": "$5.400",
+    "descripcion": "Origen del día, molido al momento, 250 ml."
+  },
+  {
+    "id": "i06",
+    "categoria": "Filtrado",
+    "nombre": "Prensa francesa",
+    "precio": "$6.800",
+    "descripcion": "Para dos tazas. Te lo dejamos servir a vos."
+  },
+  {
+    "id": "i07",
+    "categoria": "Filtrado",
+    "nombre": "Cold brew",
+    "precio": "$5.000",
+    "descripcion": "Dieciocho horas en frío, servido sobre hielo grande."
+  },
+  {
+    "id": "i08",
+    "categoria": "Filtrado",
+    "nombre": "Cascarita",
+    "precio": "$3.800",
+    "descripcion": "Infusión de cáscara de café, caliente o helada.",
+    "nota": "Sin cafeína alta"
+  },
+  {
+    "id": "i09",
+    "categoria": "Cocina",
+    "nombre": "Tostado de campo",
+    "precio": "$8.900",
+    "descripcion": "Pan de masa madre, queso de sierra, jamón natural."
+  },
+  {
+    "id": "i10",
+    "categoria": "Cocina",
+    "nombre": "Huevos revueltos",
+    "precio": "$9.600",
+    "descripcion": "Tres huevos, ciboulette, tostada con manteca."
+  },
+  {
+    "id": "i11",
+    "categoria": "Cocina",
+    "nombre": "Rol de canela",
+    "precio": "$4.700",
+    "descripcion": "Sale del horno a las nueve y media. Suele volar."
+  },
+  {
+    "id": "i12",
+    "categoria": "Cocina",
+    "nombre": "Budín del día",
+    "precio": "$4.200",
+    "descripcion": "Preguntá en la barra: cambia según qué fruta haya."
+  }
+]
