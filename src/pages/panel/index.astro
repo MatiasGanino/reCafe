@@ -86,7 +86,12 @@ const valor = (campo: keyof DatosItem): string => {
         {items.filter((i) => i.oculto).length} oculto{items.filter((i) => i.oculto).length === 1 ? "" : "s"}
       </p>
     </div>
-    <a class="enlace" href="/" target="_blank" rel="noopener">Ver el sitio ↗</a>
+    <div class="acciones-cabecera">
+      <a class="enlace" href="/" target="_blank" rel="noopener">Ver el sitio ↗</a>
+      <form method="POST" action="/api/salir">
+        <button class="enlace como-boton" type="submit">Salir</button>
+      </form>
+    </div>
   </header>
 
   {aviso && <p class="aviso">{aviso}</p>}

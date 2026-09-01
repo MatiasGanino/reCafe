@@ -46,6 +46,24 @@ const { titulo } = Astro.props;
         font-size: clamp(2rem, 5vw, 2.6rem);
       }
 
+      .acciones-cabecera {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .como-boton {
+        font: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        background: none;
+        border: none;
+        border-bottom: 1px solid currentColor;
+        padding: 0 0 2px;
+        cursor: pointer;
+        color: var(--terracota);
+      }
+
       .sutil {
         color: var(--humo);
         font-size: 14.5px;

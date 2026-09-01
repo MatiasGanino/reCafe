@@ -21,6 +21,30 @@ const enlaces = [
   </div>
 </header>
 
+<dialog class="modal" id="modalLogin" aria-labelledby="tituloLogin">
+  <form method="dialog" class="cerrar-modal">
+    <button value="cancelar" aria-label="Cerrar">×</button>
+  </form>
+
+  <h2 id="tituloLogin">Panel</h2>
+
+  <form id="formLogin" class="form-login">
+    <label>
+      <span>Usuario</span>
+      <input name="usuario" autocomplete="off" autocapitalize="none" spellcheck="false" required />
+    </label>
+
+    <label>
+      <span>Contraseña</span>
+      <input type="password" name="clave" autocomplete="off" required />
+    </label>
+
+    <p class="error-login" id="errorLogin" role="alert" hidden></p>
+
+    <button class="boton" type="submit">Entrar</button>
+  </form>
+</dialog>
+
 <style>
   .barra {
     position: sticky;
@@ -55,6 +79,95 @@ const enlaces = [
   .menu-nav a:hover,
   .menu-nav a:focus-visible {
     color: var(--terracota);
+  }
+
+  /* El logo se toca cinco veces seguidas: que no seleccione texto al hacerlo. */
+  .marca {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── modal de login ─────────────────────────────── */
+  .modal {
+    /* El reset global (* { margin: 0 }) pisa el margin:auto que el navegador
+       le da a dialog:modal, que es lo que lo centra. Lo reponemos. */
+    margin: auto;
+    border: 1px solid var(--linea);
+    border-radius: 14px;
+    background: var(--papel);
+    color: var(--tinta);
+    padding: 30px 28px 28px;
+    width: min(360px, calc(100vw - 32px));
+    font-family: var(--texto);
+  }
+
+  .modal::backdrop {
+    background: rgba(47, 37, 33, 0.45);
+  }
+
+  .modal h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .cerrar-modal {
+    float: right;
+  }
+
+  .cerrar-modal button {
+    font: inherit;
+    font-size: 22px;
+    line-height: 1;
+    background: none;
+    border: none;
+    color: var(--humo);
+    cursor: pointer;
+    padding: 0 2px;
+  }
+
+  .form-login {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .form-login label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-login span {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .form-login input {
+    font: inherit;
+    font-size: 15px;
+    color: var(--tinta);
+    background: var(--crema);
+    border: 1px solid var(--linea);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .form-login input:focus-visible {
+    border-color: var(--durazno);
+  }
+
+  .form-login button[type="submit"] {
+    font: inherit;
+    border: none;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  .error-login {
+    font-size: 13.5px;
+    color: var(--terracota);
+    margin: 0;
+    max-width: none;
   }
 
   .hamburguesa {
@@ -125,5 +238,80 @@ const enlaces = [
     window.addEventListener("resize", ajustarNav);
     chico.addEventListener("change", ajustarNav);
     ajustarNav();
+  }
+
+  // ── entrada al panel: cinco toques al logo ──────────────
+  const marca = document.querySelector<HTMLAnchorElement>(".marca");
+  const modal = document.getElementById("modalLogin") as HTMLDialogElement | null;
+  const formLogin = document.getElementById("formLogin") as HTMLFormElement | null;
+  const errorLogin = document.getElementById("errorLogin");
+
+  if (marca && modal && formLogin && errorLogin) {
+    const TOQUES = 5;
+    const PAUSA_MAXIMA = 1200; // ms entre toque y toque
+
+    let toques = 0;
+    let ultimo = 0;
+
+    const abrir = () => {
+      errorLogin.hidden = true;
+      formLogin.reset();
+      modal.showModal();
+    };
+
+    marca.addEventListener("click", (e) => {
+      const ahora = Date.now();
+      toques = ahora - ultimo > PAUSA_MAXIMA ? 1 : toques + 1;
+      ultimo = ahora;
+
+      // A partir del segundo toque ya no es un click normal: no saltamos al ancla.
+      if (toques > 1) e.preventDefault();
+
+      if (toques >= TOQUES) {
+        e.preventDefault();
+        toques = 0;
+        abrir();
+      }
+    });
+
+    // Si el middleware nos mandó de vuelta por sesión vencida, abrimos solo.
+    if (new URLSearchParams(location.search).has("entrar")) {
+      history.replaceState(null, "", location.pathname);
+      abrir();
+    }
+
+    formLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const boton = formLogin.querySelector("button[type=submit]") as HTMLButtonElement;
+
+      errorLogin.hidden = true;
+      boton.disabled = true;
+      boton.textContent = "Entrando…";
+
+      try {
+        // POST: las credenciales van en el cuerpo, nunca en la URL, así no quedan
+        // en el historial del navegador ni en los logs del servidor.
+        const res = await fetch("/api/entrar", {
+          method: "POST",
+          body: new FormData(formLogin),
+        });
+
+        if (res.ok) {
+          location.href = "/panel";
+          return;
+        }
+
+        const { error } = await res.json().catch(() => ({ error: "No se pudo entrar." }));
+        errorLogin.textContent = error;
+        errorLogin.hidden = false;
+      } catch {
+        errorLogin.textContent = "No se pudo conectar. Probá de nuevo.";
+        errorLogin.hidden = false;
+      } finally {
+        formLogin.reset();
+        boton.disabled = false;
+        boton.textContent = "Entrar";
+      }
+    });
   }
 </script>
