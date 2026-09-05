@@ -1,0 +1,69 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ListaCarta from "../components/ListaCarta.astro";
+import EstadoApertura from "../components/EstadoApertura.astro";
+import { contacto } from "../data/cafeteria";
+
+// Pantalla pensada para el QR de las mesas: solo la carta, sin barra ni secciones.
+---
+
+<Layout
+  titulo="Carta · RECAFE"
+  descripcion="La carta de RECAFE, café de barrio en Agronomía. Precios en pesos, servicio incluido."
+>
+  <main class="pagina-carta">
+    <div class="envoltura">
+      <header class="tapa">
+        <p class="marca">RECAFE</p>
+        <EstadoApertura />
+      </header>
+
+      <ListaCarta filtrosFijos />
+
+      <footer class="pie">
+        <p>Precios en pesos, servicio incluido.</p>
+        <p>{contacto.direccion} · {contacto.barrio}</p>
+      </footer>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .pagina-carta {
+    padding-bottom: 48px;
+  }
+
+  .tapa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 26px 0 20px;
+  }
+
+  .tapa .marca {
+    font-size: 1.8rem;
+    max-width: none;
+    color: var(--tinta);
+  }
+
+  .pie {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid var(--linea);
+    font-size: 14px;
+  }
+
+  .pie p {
+    max-width: none;
+  }
+
+  .pie p + p {
+    margin-top: 4px;
+  }
+
+  .pie a {
+    text-decoration: none;
+  }
+</style>

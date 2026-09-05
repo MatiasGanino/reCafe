@@ -1,0 +1,207 @@
+---
+import { aSlug, leerCartaPublica } from "../data/carta";
+
+interface Props {
+  /** Deja los filtros pegados arriba al hacer scroll: sirve en la página del QR. */
+  filtrosFijos?: boolean;
+}
+
+const { filtrosFijos = false } = Astro.props;
+
+const { items: carta, grupos } = await leerCartaPublica();
+
+// Cada categoría es un bloque propio: así la vista "Todo" queda separada y se lee
+// de a tandas en vez de como una lista corrida.
+const bloques = grupos
+  .filter((g) => g.id !== "todo")
+  .map((g) => ({ ...g, items: carta.filter((item) => aSlug(item.categoria) === g.id) }));
+---
+
+<div class:list={["carta-lista", { fijos: filtrosFijos }]}>
+  <div class="filtros" role="group" aria-label="Filtrar la carta">
+    {
+      grupos.map((g, i) => (
+        <button class="filtro" data-grupo={g.id} aria-pressed={String(i === 0)}>
+          {g.etiqueta}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="bloques" data-vista="todo">
+    {
+      bloques.map((bloque) => (
+        <section class="bloque" data-grupo={bloque.id}>
+          <h3 class="rotulo titulo-grupo">{bloque.etiqueta}</h3>
+          <ul class="carta">
+            {bloque.items.map((item) => (
+              <li class="item">
+                <h4>{item.nombre}</h4>
+                <span class="precio">{item.precio}</span>
+                <p>
+                  {item.descripcion}
+                  {item.nota && <span class="nota"> {item.nota}</span>}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <p class="vacio" hidden>No hay nada en esa categoría todavía. Probá con otra.</p>
+</div>
+
+<style>
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  /* En la página del QR la barra queda a mano mientras se baja por la carta. */
+  .fijos .filtros {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin-bottom: 0;
+    /* Se sale de la envoltura para que nada asome por los costados al scrollear. */
+    margin-inline: -24px;
+    padding: 14px 24px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--crema);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .fijos .filtros::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fijos .filtro {
+    flex: none;
+  }
+
+  .fijos .bloques {
+    padding-top: 28px;
+  }
+
+  .filtro {
+    font: inherit;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    padding: 8px 18px;
+    color: var(--humo);
+    cursor: pointer;
+    transition:
+      background 0.18s,
+      color 0.18s,
+      border-color 0.18s;
+  }
+
+  .filtro:hover {
+    color: var(--tinta);
+    border-color: var(--durazno);
+  }
+
+  .filtro[aria-pressed="true"] {
+    background: var(--durazno);
+    border-color: var(--durazno);
+    color: var(--tinta);
+    font-weight: 600;
+  }
+
+  .bloque + .bloque {
+    margin-top: 44px;
+  }
+
+  .titulo-grupo {
+    /* .rotulo va sobre <p> y hereda la sans; en un <h3> hay que pedirla. */
+    font-family: var(--texto);
+    margin-bottom: 6px;
+  }
+
+  /* Con una categoría elegida el título repetiría al filtro apretado. */
+  .bloques:not([data-vista="todo"]) .titulo-grupo {
+    display: none;
+  }
+
+  .bloque[hidden] {
+    display: none;
+  }
+
+  .carta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0 48px;
+    list-style: none;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .item h4 {
+    grid-column: 1;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .item .precio {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .item p {
+    grid-column: 1 / -1;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .item .nota {
+    color: var(--terracota);
+    font-weight: 600;
+  }
+
+  .vacio {
+    margin-top: 24px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".carta-lista").forEach((raiz) => {
+    const filtros = raiz.querySelectorAll<HTMLButtonElement>(".filtro");
+    const contenedor = raiz.querySelector<HTMLElement>(".bloques");
+    const bloques = raiz.querySelectorAll<HTMLElement>(".bloque");
+    const vacio = raiz.querySelector<HTMLElement>(".vacio");
+
+    filtros.forEach((filtro) => {
+      filtro.addEventListener("click", () => {
+        const grupo = filtro.dataset.grupo ?? "todo";
+        filtros.forEach((otro) => otro.setAttribute("aria-pressed", String(otro === filtro)));
+        if (contenedor) contenedor.dataset.vista = grupo;
+
+        let visibles = 0;
+        bloques.forEach((bloque) => {
+          const mostrar = grupo === "todo" || bloque.dataset.grupo === grupo;
+          bloque.hidden = !mostrar;
+          if (mostrar) visibles++;
+        });
+
+        if (vacio) vacio.hidden = visibles > 0;
+      });
+    });
+  });
+</script>
