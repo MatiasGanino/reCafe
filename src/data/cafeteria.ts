@@ -66,14 +66,13 @@ export const antesDeVenir: { texto: string; dato: string }[] = [
 
 export const hoy: { clave: string; valor: string }[] = [
   { clave: "Café", valor: "Mezcla de la casa" },
-  { clave: "Filtrado", valor: "V60 y prensa" },
   { clave: "Del horno", valor: "Roles de canela" },
   { clave: "Cocina", valor: "Hasta las 20" },
 ];
 
 export const detallesCasa: string[] = [
   "La pastelería la hacemos acá, cada mañana.",
-  "El café lo compramos tostado a un tostador de Chacarita.",
+  "En la repisa hay libros para leer acá; si traés uno, lo sumamos.",
   "Hay una mesa larga para compartir y cuatro afuera.",
   "Si venís seguido, ya sabemos cómo lo tomás.",
 ];

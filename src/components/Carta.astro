@@ -2,6 +2,12 @@
 import { aSlug, leerCartaPublica } from "../data/carta";
 
 const { items: carta, grupos } = await leerCartaPublica();
+
+// Cada categoría es un bloque propio: así la vista "Todo" queda separada y se lee
+// de a tandas en vez de como una lista corrida.
+const bloques = grupos
+  .filter((g) => g.id !== "todo")
+  .map((g) => ({ ...g, items: carta.filter((item) => aSlug(item.categoria) === g.id) }));
 ---
 
 <section class="seccion" id="carta">
@@ -25,20 +31,27 @@ const { items: carta, grupos } = await leerCartaPublica();
       }
     </div>
 
-    <ul class="carta">
+    <div class="bloques" data-vista="todo">
       {
-        carta.map((item) => (
-          <li class="item" data-grupo={aSlug(item.categoria)}>
-            <h3>{item.nombre}</h3>
-            <span class="precio">{item.precio}</span>
-            <p>
-              {item.descripcion}
-              {item.nota && <span class="nota"> {item.nota}</span>}
-            </p>
-          </li>
+        bloques.map((bloque) => (
+          <section class="bloque" data-grupo={bloque.id}>
+            <h3 class="rotulo titulo-grupo">{bloque.etiqueta}</h3>
+            <ul class="carta">
+              {bloque.items.map((item) => (
+                <li class="item">
+                  <h4>{item.nombre}</h4>
+                  <span class="precio">{item.precio}</span>
+                  <p>
+                    {item.descripcion}
+                    {item.nota && <span class="nota"> {item.nota}</span>}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
         ))
       }
-    </ul>
+    </div>
 
     <p class="vacio" hidden>No hay nada en esa categoría todavía. Probá con otra.</p>
   </div>
@@ -79,6 +92,25 @@ const { items: carta, grupos } = await leerCartaPublica();
     font-weight: 600;
   }
 
+  .bloque + .bloque {
+    margin-top: 44px;
+  }
+
+  .titulo-grupo {
+    /* .rotulo va sobre <p> y hereda la sans; en un <h3> hay que pedirla. */
+    font-family: var(--texto);
+    margin-bottom: 6px;
+  }
+
+  /* Con una categoría elegida el título repetiría al filtro apretado. */
+  .bloques:not([data-vista="todo"]) .titulo-grupo {
+    display: none;
+  }
+
+  .bloque[hidden] {
+    display: none;
+  }
+
   .carta {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -94,12 +126,12 @@ const { items: carta, grupos } = await leerCartaPublica();
     border-bottom: 1px solid var(--linea);
   }
 
-  .item[hidden] {
-    display: none;
-  }
-
-  .item h3 {
+  .item h4 {
     grid-column: 1;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.2rem;
+    line-height: 1.25;
   }
 
   .item .precio {
@@ -129,18 +161,20 @@ const { items: carta, grupos } = await leerCartaPublica();
 
   if (seccion) {
     const filtros = seccion.querySelectorAll<HTMLButtonElement>(".filtro");
-    const items = seccion.querySelectorAll<HTMLElement>(".item");
+    const contenedor = seccion.querySelector<HTMLElement>(".bloques");
+    const bloques = seccion.querySelectorAll<HTMLElement>(".bloque");
     const vacio = seccion.querySelector<HTMLElement>(".vacio");
 
     filtros.forEach((filtro) => {
       filtro.addEventListener("click", () => {
-        const grupo = filtro.dataset.grupo;
+        const grupo = filtro.dataset.grupo ?? "todo";
         filtros.forEach((otro) => otro.setAttribute("aria-pressed", String(otro === filtro)));
+        if (contenedor) contenedor.dataset.vista = grupo;
 
         let visibles = 0;
-        items.forEach((item) => {
-          const mostrar = grupo === "todo" || item.dataset.grupo === grupo;
-          item.hidden = !mostrar;
+        bloques.forEach((bloque) => {
+          const mostrar = grupo === "todo" || bloque.dataset.grupo === grupo;
+          bloque.hidden = !mostrar;
           if (mostrar) visibles++;
         });
 
