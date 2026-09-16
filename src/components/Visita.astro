@@ -1,21 +1,20 @@
 ---
-import { antesDeVenir, comoLlegar, contacto, horariosVisibles } from "../data/cafeteria";
+import { comoLlegar, contacto, horariosVisibles, mapa } from "../data/cafeteria";
 
 const tarjetas = [
   {
     rotulo: "Dónde",
     titulo: contacto.direccion,
+    href: mapa.enlace,
     lineas: [{ texto: contacto.barrio }, ...comoLlegar.map((texto) => ({ texto }))],
   },
   { rotulo: "Cuándo", titulo: "Horarios", lineas: horariosVisibles },
-  { rotulo: "Cómo es", titulo: "Antes de venir", lineas: antesDeVenir },
 ];
 ---
 
 <section class="seccion" id="visita">
   <div class="envoltura">
     <div class="encabezado revelar">
-      <p class="rotulo">Visitanos</p>
       <h2>Un solo local, a propósito</h2>
     </div>
 
@@ -24,7 +23,15 @@ const tarjetas = [
         tarjetas.map((t) => (
           <div class="tarjeta">
             <p class="rotulo">{t.rotulo}</p>
-            <h3>{t.titulo}</h3>
+            <h3>
+              {"href" in t && t.href ? (
+                <a href={t.href} target="_blank" rel="noopener">
+                  {t.titulo}
+                </a>
+              ) : (
+                t.titulo
+              )}
+            </h3>
             <ul>
               {t.lineas.map((l) => (
                 <li>
@@ -36,6 +43,15 @@ const tarjetas = [
           </div>
         ))
       }
+
+      <div class="mapa">
+        <iframe
+          src={mapa.embebido}
+          title={`Mapa: ${contacto.direccion}, ${contacto.barrio}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <a class="abrir-mapa" href={mapa.enlace} target="_blank" rel="noopener">Abrir en Google Maps ↗</a>
+      </div>
     </div>
   </div>
 </section>
@@ -56,6 +72,58 @@ const tarjetas = [
 
   .tarjeta h3 {
     margin: 10px 0 12px;
+  }
+
+  .tarjeta h3 a {
+    text-decoration: underline;
+    text-decoration-color: var(--durazno);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .tarjeta h3 a:hover {
+    color: var(--terracota);
+  }
+
+  /* Ocupa el lugar de una tarjeta más y se estira a la altura de la fila. */
+  .mapa {
+    position: relative;
+    min-height: 240px;
+    border: 1px solid var(--linea);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--papel);
+  }
+
+  .mapa iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .abrir-mapa {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--crema);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .abrir-mapa:hover {
+    background: var(--terracota);
+  }
+
+  @media (max-width: 600px) {
+    .mapa {
+      min-height: 260px;
+    }
   }
 
   .tarjeta ul {

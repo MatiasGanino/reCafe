@@ -1,5 +1,5 @@
 ---
-import { contacto, redes } from "../data/cafeteria";
+import { contacto, mapa, redes } from "../data/cafeteria";
 
 const anio = new Date().getFullYear();
 
@@ -13,7 +13,8 @@ const enlacesPie = [...redes, { texto: "Carta", href: "#carta" }];
       {enlacesPie.map((r) => <li><a href={r.href}>{r.texto}</a></li>)}
     </ul>
     <p class="legal">
-      {contacto.direccion}, {contacto.barrio} · © {anio} RECAFE
+      <a href={mapa.enlace} target="_blank" rel="noopener">{contacto.direccion}, {contacto.barrio}</a> · ©
+      {anio} RECAFE
     </p>
   </div>
 </footer>
@@ -51,5 +52,9 @@ const enlacesPie = [...redes, { texto: "Carta", href: "#carta" }];
   .legal {
     margin: 18px auto 0;
     font-size: 13.5px;
+  }
+
+  .legal a:hover {
+    color: var(--terracota);
   }
 </style>

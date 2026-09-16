@@ -1,5 +1,5 @@
 ---
-import { aSlug, leerCartaPublica } from "../data/carta";
+import { aSlug, leerCartaPublica, partirPrecio, TAZAS, type Precio } from "../data/carta";
 
 interface Props {
   /** Deja los filtros pegados arriba al hacer scroll: sirve en la página del QR. */
@@ -10,11 +10,25 @@ const { filtrosFijos = false } = Astro.props;
 
 const { items: carta, grupos } = await leerCartaPublica();
 
+const esTaza = (p: Precio) => (TAZAS as readonly string[]).includes(p.etiqueta);
+
 // Cada categoría es un bloque propio: así la vista "Todo" queda separada y se lee
-// de a tandas en vez de como una lista corrida.
+// de a tandas en vez de como una lista corrida. Lo que se sirve por taza va en una
+// tabla con una columna por tamaño, como en la carta impresa; el resto, en lista.
 const bloques = grupos
   .filter((g) => g.id !== "todo")
-  .map((g) => ({ ...g, items: carta.filter((item) => aSlug(item.categoria) === g.id) }));
+  .map((g) => {
+    const items = carta
+      .filter((item) => aSlug(item.categoria) === g.id)
+      .map((item) => ({ ...item, precios: partirPrecio(item.precio) }));
+    const porTaza = items.filter((item) => item.precios.some(esTaza));
+    return {
+      ...g,
+      porTaza,
+      sueltos: items.filter((item) => !item.precios.some(esTaza)),
+      tazas: TAZAS.filter((t) => porTaza.some((item) => item.precios.some((p) => p.etiqueta === t))),
+    };
+  });
 ---
 
 <div class:list={["carta-lista", { fijos: filtrosFijos }]}>
@@ -33,18 +47,99 @@ const bloques = grupos
       bloques.map((bloque) => (
         <section class="bloque" data-grupo={bloque.id}>
           <h3 class="rotulo titulo-grupo">{bloque.etiqueta}</h3>
-          <ul class="carta">
-            {bloque.items.map((item) => (
-              <li class="item">
-                <h4>{item.nombre}</h4>
-                <span class="precio">{item.precio}</span>
-                <p>
-                  {item.descripcion}
-                  {item.nota && <span class="nota"> {item.nota}</span>}
-                </p>
-              </li>
-            ))}
-          </ul>
+
+          {bloque.porTaza.length > 0 && (
+            <table class="tazas">
+              <thead>
+                <tr>
+                  <th scope="col">
+                    <span class="solo-lectores">Producto</span>
+                  </th>
+                  {bloque.tazas.map((taza) => (
+                    <th scope="col" class="columna-taza">
+                      <svg class={`taza taza--${taza.toLowerCase()}`} viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3.5 6.5h13v7.5a5 5 0 0 1-5 5h-3a5 5 0 0 1-5-5z" />
+                        <path d="M16.5 9h1.25a2.75 2.75 0 0 1 0 5.5H16" />
+                      </svg>
+                      <span>{taza}</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {bloque.porTaza.map((item) => {
+                  // Lo que no entra en una columna (p. ej. "Tazón") se aclara abajo del nombre.
+                  const otros = item.precios.filter((p) => !esTaza(p));
+                  return (
+                    <tr>
+                      <th scope="row">
+                        <span class="nombre">{item.nombre}</span>
+                        {(item.descripcion || item.nota || otros.length > 0) && (
+                          <span class="detalle">
+                            {item.descripcion}
+                            {item.nota && <span class="nota"> {item.nota}</span>}
+                            {otros.map((p) => (
+                              <span class="otro">
+                                {" "}
+                                En {p.etiqueta.toLowerCase()} <span class="precio">{p.monto}</span>
+                              </span>
+                            ))}
+                          </span>
+                        )}
+                      </th>
+                      {bloque.tazas.map((taza) => {
+                        const precio = item.precios.find((p) => p.etiqueta === taza);
+                        return (
+                          <td>
+                            {precio ? (
+                              // Con el encabezado alcanza: sin "$" las columnas respiran en el celular.
+                              <span class="precio">{precio.monto.replace("$", "")}</span>
+                            ) : (
+                              <span class="falta">
+                                <span aria-hidden="true">–</span>
+                                <span class="solo-lectores">No hay {taza.toLowerCase()}</span>
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {bloque.sueltos.length > 0 && (
+            <ul class="carta">
+              {bloque.sueltos.map(({ precios, ...item }) => {
+                // Un solo precio sin tamaño va al costado del nombre; si hay opciones, abajo.
+                const simple = precios.length === 1 && !precios[0].etiqueta;
+                return (
+                  <li class="item">
+                    <h4>{item.nombre}</h4>
+                    {simple && <span class="precio">{precios[0].monto}</span>}
+                    {(item.descripcion || item.nota) && (
+                      <p>
+                        {item.descripcion}
+                        {item.nota && <span class="nota"> {item.nota}</span>}
+                      </p>
+                    )}
+                    {!simple && (
+                      <ul class="precios">
+                        {precios.map((p) => (
+                          <li>
+                            {p.etiqueta && <span class="etiqueta">{p.etiqueta}</span>}
+                            <span class="precio">{p.monto}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       ))
     }
@@ -120,9 +215,12 @@ const bloques = grupos
     margin-top: 44px;
   }
 
+  /* Como en la carta impresa: la categoría en Lora, mayúsculas y grande. */
   .titulo-grupo {
-    /* .rotulo va sobre <p> y hereda la sans; en un <h3> hay que pedirla. */
-    font-family: var(--texto);
+    font-family: var(--titulo);
+    font-size: 1.45rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
     margin-bottom: 6px;
   }
 
@@ -133,6 +231,158 @@ const bloques = grupos
 
   .bloque[hidden] {
     display: none;
+  }
+
+  .solo-lectores {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Tabla de tazas: una columna por tamaño, así se compara de un vistazo. */
+  .tazas {
+    width: 100%;
+    max-width: 760px;
+    border-collapse: collapse;
+  }
+
+  .tazas + .carta {
+    margin-top: 12px;
+  }
+
+  .tazas thead th {
+    padding: 10px 0 12px;
+    /* Sombra y no borde: con border-collapse el borde no acompaña al sticky. */
+    box-shadow: inset 0 -1px var(--tinta);
+    background: var(--crema);
+    vertical-align: bottom;
+  }
+
+  /* En la página del QR el encabezado acompaña al scroll, debajo de los filtros. */
+  /* Sticky en el thead entero y no en cada celda: por celda quedan rayitas entre columnas. */
+  .fijos .tazas thead {
+    position: sticky;
+    top: 70px; /* alto de la barra de filtros */
+    z-index: 4;
+  }
+
+  .columna-taza {
+    width: 4.6rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--humo);
+    text-align: center;
+  }
+
+  .columna-taza span {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .taza {
+    display: block;
+    margin-inline: auto;
+    fill: none;
+    stroke: var(--terracota);
+    stroke-width: 1.6px;
+    stroke-linejoin: round;
+    /* El tamaño del dibujo cuenta cuánto café entra. */
+    height: var(--alto-taza);
+    width: var(--alto-taza);
+  }
+
+  /* Mismo grosor de trazo en todas: si escala con el dibujo, las chicas quedan flacas. */
+  .taza path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .taza--xl {
+    --alto-taza: 30px;
+  }
+  .taza--mediana {
+    --alto-taza: 25px;
+  }
+  .taza--jarrito {
+    --alto-taza: 20px;
+  }
+  .taza--pocillo {
+    --alto-taza: 15px;
+  }
+
+  .tazas tbody th,
+  .tazas td {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--linea);
+    vertical-align: baseline;
+  }
+
+  .tazas tbody th {
+    text-align: left;
+    font-weight: 400;
+    padding-right: 10px;
+  }
+
+  .tazas .nombre {
+    display: block;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .tazas .detalle {
+    display: block;
+    margin-top: 3px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--humo);
+  }
+
+  /* Encabezado y precios centrados en la misma columna, así quedan uno debajo del otro. */
+  .tazas td,
+  .columna-taza {
+    padding-inline: 4px;
+  }
+
+  .tazas td {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .tazas .precio {
+    font-family: var(--display);
+    font-size: 1.12rem;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: var(--tinta);
+  }
+
+  .tazas .otro .precio {
+    font-size: 1rem;
+  }
+
+  .tazas .falta {
+    color: var(--humo);
+    opacity: 0.4;
+  }
+
+  @media (max-width: 420px) {
+    .columna-taza {
+      width: 3.3rem;
+      font-size: 11px;
+      letter-spacing: 0;
+    }
+
+    .tazas .nombre {
+      font-size: 1.12rem;
+    }
+
+    .tazas .precio {
+      font-size: 1.05rem;
+    }
   }
 
   .carta {
@@ -153,7 +403,8 @@ const bloques = grupos
   .item h4 {
     grid-column: 1;
     font-family: var(--display);
-    font-weight: 500;
+    /* Sin esto el <h4> sale en negrita. */
+    font-weight: 400;
     font-size: 1.2rem;
     line-height: 1.25;
   }
@@ -161,13 +412,37 @@ const bloques = grupos
   .item .precio {
     font-family: var(--display);
     font-size: 1.15rem;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
   }
 
   .item p {
     grid-column: 1 / -1;
     font-size: 15px;
     margin: 0;
+  }
+
+  .precios {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    list-style: none;
+    margin-top: 4px;
+  }
+
+  .precios li {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .precios .etiqueta {
+    font-size: 13px;
+    color: var(--humo);
+  }
+
+  .precios .precio {
+    font-size: 1.1rem;
   }
 
   .item .nota {

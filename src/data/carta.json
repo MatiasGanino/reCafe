@@ -1,88 +1,560 @@
 [
   {
     "id": "i01",
-    "categoria": "Espresso",
+    "categoria": "Café",
     "nombre": "Espresso",
-    "precio": "$2.900",
-    "descripcion": "Mezcla de la casa, 18 g adentro, 36 g afuera."
+    "precio": "Pocillo $4.000",
+    "descripcion": ""
   },
   {
     "id": "i02",
-    "categoria": "Espresso",
-    "nombre": "Cortado",
-    "precio": "$3.400",
-    "descripcion": "Doble ristretto con un dedo de leche texturada."
+    "categoria": "Café",
+    "nombre": "Espresso doble",
+    "precio": "Pocillo $4.500",
+    "descripcion": ""
   },
   {
     "id": "i03",
-    "categoria": "Espresso",
-    "nombre": "Flat white",
-    "precio": "$4.600",
-    "descripcion": "Ocho onzas, sin azúcar agregada, en taza de cerámica."
+    "categoria": "Café",
+    "nombre": "Americano",
+    "precio": "Mediana $4.000 · Jarrito $3.700 · Pocillo $3.500",
+    "descripcion": ""
   },
   {
     "id": "i04",
-    "categoria": "Espresso",
-    "nombre": "Latte de vainilla",
-    "precio": "$5.200",
-    "descripcion": "Vainilla en chaucha macerada acá.",
-    "nota": "Sin esencia"
+    "categoria": "Café",
+    "nombre": "Cortado",
+    "precio": "Jarrito $4.300 · Pocillo $3.500",
+    "descripcion": ""
   },
   {
     "id": "i05",
-    "categoria": "Filtrado",
-    "nombre": "V60",
-    "precio": "$5.400",
-    "descripcion": "Origen del día, molido al momento, 250 ml."
+    "categoria": "Café",
+    "nombre": "Macchiato",
+    "precio": "Jarrito $4.300 · Pocillo $3.500",
+    "descripcion": ""
   },
   {
     "id": "i06",
-    "categoria": "Filtrado",
-    "nombre": "Prensa francesa",
-    "precio": "$6.800",
-    "descripcion": "Para dos tazas. Te lo dejamos servir a vos."
+    "categoria": "Café",
+    "nombre": "Lágrima",
+    "precio": "Mediana $4.300 · Jarrito $3.800",
+    "descripcion": ""
   },
   {
     "id": "i07",
-    "categoria": "Filtrado",
-    "nombre": "Cold brew",
-    "precio": "$5.000",
-    "descripcion": "Dieciocho horas en frío, servido sobre hielo grande."
+    "categoria": "Café",
+    "nombre": "Café con leche",
+    "precio": "Tazón $8.000 · XL $5.800 · Mediana $4.800",
+    "descripcion": ""
   },
   {
     "id": "i08",
-    "categoria": "Filtrado",
-    "nombre": "Cascarita",
-    "precio": "$3.800",
-    "descripcion": "Infusión de cáscara de café, caliente o helada.",
-    "nota": "Sin cafeína alta"
+    "categoria": "Café",
+    "nombre": "Capuccino",
+    "precio": "Mediana $4.800",
+    "descripcion": ""
   },
   {
     "id": "i09",
-    "categoria": "Cocina",
-    "nombre": "Tostado de campo",
-    "precio": "$8.900",
-    "descripcion": "Pan de masa madre, queso de sierra, jamón natural."
+    "categoria": "Café",
+    "nombre": "Capuccino italiano",
+    "precio": "XL $6.000",
+    "descripcion": "Con cacao y canela."
   },
   {
     "id": "i10",
-    "categoria": "Cocina",
-    "nombre": "Huevos revueltos",
-    "precio": "$9.600",
-    "descripcion": "Tres huevos, ciboulette, tostada con manteca."
+    "categoria": "Café",
+    "nombre": "Flat white",
+    "precio": "Mediana $5.500",
+    "descripcion": ""
   },
   {
     "id": "i11",
-    "categoria": "Cocina",
-    "nombre": "Rol de canela",
-    "precio": "$4.700",
-    "descripcion": "Sale del horno a las nueve y media. Suele volar."
+    "categoria": "Café",
+    "nombre": "Mocaccino",
+    "precio": "XL $7.000",
+    "descripcion": "Capuccino con barra de chocolate."
   },
   {
     "id": "i12",
-    "categoria": "Cocina",
-    "nombre": "Budín del día",
-    "precio": "$4.200",
-    "descripcion": "Preguntá en la barra: cambia según qué fruta haya."
+    "categoria": "Café",
+    "nombre": "Latte saborizado",
+    "precio": "XL $6.500 · Mediana $5.500",
+    "descripcion": "Consultá las variedades."
+  },
+  {
+    "id": "i13",
+    "categoria": "Café",
+    "nombre": "Affogato",
+    "precio": "Mediana $6.900 · Jarrito $5.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i14",
+    "categoria": "Café",
+    "nombre": "Extra leche de almendras",
+    "precio": "$1.100",
+    "descripcion": ""
+  },
+  {
+    "id": "i15",
+    "categoria": "Sin café",
+    "nombre": "Matcha latte",
+    "precio": "XL $7.000 · Mediana $6.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i16",
+    "categoria": "Sin café",
+    "nombre": "Chocolatada",
+    "precio": "Mediana $4.800",
+    "descripcion": ""
+  },
+  {
+    "id": "i17",
+    "categoria": "Sin café",
+    "nombre": "Submarino",
+    "precio": "XL $5.200",
+    "descripcion": ""
+  },
+  {
+    "id": "i18",
+    "categoria": "Sin café",
+    "nombre": "Submarino Kinder",
+    "precio": "XL $5.200",
+    "descripcion": ""
+  },
+  {
+    "id": "i19",
+    "categoria": "Sin café",
+    "nombre": "Té o mate cocido",
+    "precio": "XL $4.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i20",
+    "categoria": "Sin café",
+    "nombre": "Té o mate cocido con leche",
+    "precio": "XL $4.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i21",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Infusión + 2 medialunas",
+    "precio": "$7.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i22",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Infusión + porción de tostadas",
+    "precio": "$8.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i23",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Reca Individual",
+    "precio": "$16.000",
+    "descripcion": "Infusión, tostón a elección y jugo."
+  },
+  {
+    "id": "i24",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Reca Clásico",
+    "precio": "$22.000",
+    "descripcion": "2 infusiones, 2 medialunas, tostadas y jugos."
+  },
+  {
+    "id": "i25",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Reca MitiMiti",
+    "precio": "$25.000",
+    "descripcion": "2 infusiones, 2 medialunas, medio tostado y jugos."
+  },
+  {
+    "id": "i26",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Reca Light",
+    "precio": "$29.000",
+    "descripcion": "2 infusiones, avocado toast, medio tostado y jugos."
+  },
+  {
+    "id": "i27",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Reca Brunch",
+    "precio": "$39.000",
+    "descripcion": "2 infusiones, mini torta, budín, 2 medialunas de jamón y queso, medio tostado y jugos."
+  },
+  {
+    "id": "i28",
+    "categoria": "Desayunos y meriendas",
+    "nombre": "Agrandá tu infusión",
+    "precio": "Taza XL +$1.000 · Tazón +$3.000",
+    "descripcion": "Para cualquier desayuno o merienda."
+  },
+  {
+    "id": "i29",
+    "categoria": "Pastelería",
+    "nombre": "Medialuna",
+    "precio": "$2.200",
+    "descripcion": "De manteca o de grasa."
+  },
+  {
+    "id": "i30",
+    "categoria": "Pastelería",
+    "nombre": "Croissant",
+    "precio": "$5.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i31",
+    "categoria": "Pastelería",
+    "nombre": "Pan de chocolate",
+    "precio": "$6.200",
+    "descripcion": ""
+  },
+  {
+    "id": "i32",
+    "categoria": "Pastelería",
+    "nombre": "Roll de canela",
+    "precio": "$6.200",
+    "descripcion": "Con frosting."
+  },
+  {
+    "id": "i33",
+    "categoria": "Pastelería",
+    "nombre": "Scon dulce",
+    "precio": "$5.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i34",
+    "categoria": "Pastelería",
+    "nombre": "Porción de tostadas",
+    "precio": "$5.700",
+    "descripcion": ""
+  },
+  {
+    "id": "i35",
+    "categoria": "Pastelería",
+    "nombre": "Cookie",
+    "precio": "$6.800",
+    "descripcion": "Chocolate, red velvet, vainilla con chips o choco maní."
+  },
+  {
+    "id": "i36",
+    "categoria": "Pastelería",
+    "nombre": "Cookie de pistacho y Nutella",
+    "precio": "$7.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i37",
+    "categoria": "Pastelería",
+    "nombre": "Muffin",
+    "precio": "$6.200",
+    "descripcion": "Consultá las variedades."
+  },
+  {
+    "id": "i38",
+    "categoria": "Pastelería",
+    "nombre": "Porción de budín",
+    "precio": "$6.500",
+    "descripcion": "Consultá las variedades."
+  },
+  {
+    "id": "i39",
+    "categoria": "Pastelería",
+    "nombre": "Porción de torta",
+    "precio": "$12.000",
+    "descripcion": "Consultá las variedades."
+  },
+  {
+    "id": "i40",
+    "categoria": "Pastelería",
+    "nombre": "Mini torta",
+    "precio": "$9.000",
+    "descripcion": "Consultá las variedades."
+  },
+  {
+    "id": "i41",
+    "categoria": "Pastelería",
+    "nombre": "Alfajor artesanal",
+    "precio": "$4.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i42",
+    "categoria": "Pastelería",
+    "nombre": "Barrita integral o proteica",
+    "precio": "$3.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i43",
+    "categoria": "Sin TACC",
+    "nombre": "Alfajor de maicena",
+    "precio": "$5.500",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i44",
+    "categoria": "Sin TACC",
+    "nombre": "Alfajor de almendras",
+    "precio": "$5.500",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i45",
+    "categoria": "Sin TACC",
+    "nombre": "Cuadrado de coco y dulce",
+    "precio": "$6.200",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i46",
+    "categoria": "Sin TACC",
+    "nombre": "Cuadrado de brownie",
+    "precio": "$5.200",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i47",
+    "categoria": "Sin TACC",
+    "nombre": "Porción de budín de limón",
+    "precio": "$4.600",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i48",
+    "categoria": "Sin TACC",
+    "nombre": "Porción de budín carrot cake",
+    "precio": "$4.600",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i49",
+    "categoria": "Sin TACC",
+    "nombre": "Paquete de cookies",
+    "precio": "$8.800",
+    "descripcion": "",
+    "nota": "Según stock"
+  },
+  {
+    "id": "i50",
+    "categoria": "Salados",
+    "nombre": "Mini chipá",
+    "precio": "Unidad $800 · Por 8 $5.300",
+    "descripcion": ""
+  },
+  {
+    "id": "i51",
+    "categoria": "Salados",
+    "nombre": "Chipá relleno",
+    "precio": "$4.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i52",
+    "categoria": "Salados",
+    "nombre": "Tostado de chipá",
+    "precio": "$11.000",
+    "descripcion": "",
+    "nota": "Especial de la casa"
+  },
+  {
+    "id": "i53",
+    "categoria": "Salados",
+    "nombre": "Scon de queso",
+    "precio": "$5.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i54",
+    "categoria": "Salados",
+    "nombre": "Tostado de miga",
+    "precio": "Entero $10.000 · Medio $7.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i55",
+    "categoria": "Salados",
+    "nombre": "Medialuna rellena",
+    "precio": "$3.800",
+    "descripcion": "Jamón y queso o capresse."
+  },
+  {
+    "id": "i56",
+    "categoria": "Salados",
+    "nombre": "Croissant relleno",
+    "precio": "$7.000",
+    "descripcion": "Jamón y queso o capresse."
+  },
+  {
+    "id": "i57",
+    "categoria": "Salados",
+    "nombre": "Árabe",
+    "precio": "$8.500",
+    "descripcion": "Jamón y queso o capresse."
+  },
+  {
+    "id": "i58",
+    "categoria": "Salados",
+    "nombre": "Árabe RECAFÉ",
+    "precio": "$11.000",
+    "descripcion": "",
+    "nota": "Especial de la casa"
+  },
+  {
+    "id": "i59",
+    "categoria": "Brunch",
+    "nombre": "Huevos revueltos al plato",
+    "precio": "$7.500",
+    "descripcion": "Con tostada y dip de queso crema."
+  },
+  {
+    "id": "i60",
+    "categoria": "Brunch",
+    "nombre": "Avocado toast",
+    "precio": "$12.000",
+    "descripcion": "Palta pisada, huevos revueltos y tomate cherry."
+  },
+  {
+    "id": "i61",
+    "categoria": "Brunch",
+    "nombre": "Tostón de cheddar y bacon",
+    "precio": "$12.000",
+    "descripcion": "Cheddar, huevo revuelto y bacon.",
+    "nota": "Especial de la casa"
+  },
+  {
+    "id": "i62",
+    "categoria": "Brunch",
+    "nombre": "Tostón de maní y banana",
+    "precio": "$8.500",
+    "descripcion": "Mantequilla de maní y banana."
+  },
+  {
+    "id": "i63",
+    "categoria": "Brunch",
+    "nombre": "Bowl de yogur",
+    "precio": "$11.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i64",
+    "categoria": "Sándwiches",
+    "nombre": "Ciabatta de jamón cocido",
+    "precio": "$9.800 · Con gaseosa $11.800",
+    "descripcion": "Cocido, queso, lechuga y tomate."
+  },
+  {
+    "id": "i65",
+    "categoria": "Sándwiches",
+    "nombre": "Ciabatta de jamón crudo",
+    "precio": "$11.000 · Con gaseosa $13.000",
+    "descripcion": "Crudo, queso, rúcula y tomate."
+  },
+  {
+    "id": "i66",
+    "categoria": "Sándwiches",
+    "nombre": "Ciabatta vegetariana",
+    "precio": "$10.000 · Con gaseosa $12.000",
+    "descripcion": "Berenjenas al escabeche.",
+    "nota": "Especial de la casa"
+  },
+  {
+    "id": "i67",
+    "categoria": "Sándwiches",
+    "nombre": "Focaccia de jamón cocido",
+    "precio": "$11.800 · Con gaseosa $13.800",
+    "descripcion": "Cocido, queso, lechuga y tomate."
+  },
+  {
+    "id": "i68",
+    "categoria": "Sándwiches",
+    "nombre": "Focaccia de jamón crudo",
+    "precio": "$13.000 · Con gaseosa $15.000",
+    "descripcion": "Crudo, queso, rúcula y tomate."
+  },
+  {
+    "id": "i69",
+    "categoria": "Sándwiches",
+    "nombre": "Focaccia vegetariana",
+    "precio": "$10.000 · Con gaseosa $12.000",
+    "descripcion": "Berenjenas al escabeche.",
+    "nota": "Especial de la casa"
+  },
+  {
+    "id": "i70",
+    "categoria": "Bebidas",
+    "nombre": "Exprimido de naranja",
+    "precio": "Grande $5.800 · Chico $4.500",
+    "descripcion": ""
+  },
+  {
+    "id": "i71",
+    "categoria": "Bebidas",
+    "nombre": "Limonada",
+    "precio": "$5.500 · Con menta y jengibre $6.300",
+    "descripcion": ""
+  },
+  {
+    "id": "i72",
+    "categoria": "Bebidas",
+    "nombre": "Jarra de limonada",
+    "precio": "$9.500 · Con menta y jengibre $10.300",
+    "descripcion": ""
+  },
+  {
+    "id": "i73",
+    "categoria": "Bebidas",
+    "nombre": "Licuado de banana",
+    "precio": "$8.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i74",
+    "categoria": "Bebidas",
+    "nombre": "Smoothie",
+    "precio": "$8.000",
+    "descripcion": ""
+  },
+  {
+    "id": "i75",
+    "categoria": "Bebidas",
+    "nombre": "Agua con o sin gas",
+    "precio": "$3.300",
+    "descripcion": ""
+  },
+  {
+    "id": "i76",
+    "categoria": "Bebidas",
+    "nombre": "Gaseosa línea Coca-Cola",
+    "precio": "$3.800",
+    "descripcion": ""
+  },
+  {
+    "id": "i77",
+    "categoria": "Bebidas",
+    "nombre": "Levité",
+    "precio": "$3.800",
+    "descripcion": ""
+  },
+  {
+    "id": "i78",
+    "categoria": "Bebidas",
+    "nombre": "Cerveza Corona",
+    "precio": "$5.900",
+    "descripcion": "330 cc."
   }
 ]

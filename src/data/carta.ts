@@ -51,6 +51,28 @@ export const aSlug = (texto: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+/** Tamaños de taza, de mayor a menor: en la carta cada uno es una columna. */
+export const TAZAS = ["XL", "Mediana", "Jarrito", "Pocillo"] as const;
+
+export interface Precio {
+  etiqueta: string;
+  monto: string;
+}
+
+/**
+ * Un producto puede tener varios precios en el mismo campo, separados por "·":
+ * "XL $5.800 · Mediana $4.800" → [{ etiqueta: "XL", monto: "$5.800" }, …]
+ */
+export const partirPrecio = (precio: string): Precio[] =>
+  precio
+    .split("·")
+    .map((parte) => parte.trim())
+    .filter(Boolean)
+    .map((parte) => {
+      const [, etiqueta = "", monto = parte] = parte.match(/^(.*?)\s*(\+?\$.*)$/) ?? [];
+      return { etiqueta, monto };
+    });
+
 /** Lo que ve el público: sin ocultos, con las categorías del filtro. */
 export async function leerCartaPublica() {
   const items = (await leerCarta()).filter((i) => !i.oculto);

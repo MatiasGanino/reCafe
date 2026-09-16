@@ -1,10 +1,18 @@
 export const contacto = {
   direccion: "Gral. José Gervasio Artigas 3602",
   barrio: "Agronomía, CABA",
-  email: "hola@recafe.example",
   telefono: "11 4800-0000",
   telefonoLink: "+541148000000",
   desde: "2025",
+};
+
+const lugar = encodeURIComponent(`${contacto.direccion}, ${contacto.barrio}`);
+
+export const mapa = {
+  /** Abre Google Maps con el local marcado; en el celular abre la app. */
+  enlace: `https://www.google.com/maps/search/?api=1&query=${lugar}`,
+  /** Para el iframe: esta forma no necesita clave de API. */
+  embebido: `https://maps.google.com/maps?q=${lugar}&z=16&output=embed`,
 };
 
 export interface Horario {
@@ -56,12 +64,6 @@ export const horariosVisibles = horarios.map((h) => ({
 export const comoLlegar: string[] = [
   "Tren Urquiza · est. Francisco Beiró",
   "Colectivos 80, 87, 110 y 123",
-];
-
-export const antesDeVenir: { texto: string; dato: string }[] = [
-  { texto: "Wifi y enchufes", dato: "sí" },
-  { texto: "Reservas", dato: "no" },
-  { texto: "Mesas afuera", dato: "4" },
 ];
 
 export const hoy: { clave: string; valor: string }[] = [

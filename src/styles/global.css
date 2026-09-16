@@ -8,8 +8,11 @@
   --humo: rgba(47, 37, 33, 0.72);
   --linea: rgba(47, 37, 33, 0.14);
   --verde: #2f6b45;
-  --display: "Bodoni Moda", Georgia, serif;
-  --texto: "Archivo", system-ui, -apple-system, sans-serif;
+  /* Las mismas de la carta impresa: Lora para títulos, Alegreya Sans para todo lo demás. */
+  --titulo: "Lora", Georgia, serif;
+  --texto: "Alegreya Sans", system-ui, -apple-system, sans-serif;
+  /* Nombres y precios de la carta. */
+  --display: var(--texto);
   --max: 1040px;
 }
 
@@ -35,8 +38,10 @@ body {
   background: var(--crema);
   color: var(--tinta);
   font-family: var(--texto);
-  font-size: 17px;
-  line-height: 1.65;
+  font-size: 18px;
+  line-height: 1.6;
+  /* Alegreya trae números de estilo antiguo (bajitos): para horarios y precios se leen mejor parejos. */
+  font-variant-numeric: lining-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -60,9 +65,9 @@ a {
 h1,
 h2,
 h3 {
-  font-family: var(--display);
-  font-weight: 500;
-  line-height: 1.1;
+  font-family: var(--titulo);
+  font-weight: 400;
+  line-height: 1.15;
 }
 
 h1 {
@@ -93,10 +98,10 @@ p {
 }
 
 .marca {
-  font-family: var(--display);
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-family: var(--titulo);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-decoration: none;
   white-space: nowrap;
   color: var(--tinta);

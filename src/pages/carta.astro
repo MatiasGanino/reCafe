@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ListaCarta from "../components/ListaCarta.astro";
 import EstadoApertura from "../components/EstadoApertura.astro";
-import { contacto } from "../data/cafeteria";
+import { contacto, mapa } from "../data/cafeteria";
 
 // Pantalla pensada para el QR de las mesas: solo la carta, sin barra ni secciones.
 ---
@@ -22,7 +22,9 @@ import { contacto } from "../data/cafeteria";
 
       <footer class="pie">
         <p>Precios en pesos, servicio incluido.</p>
-        <p>{contacto.direccion} · {contacto.barrio}</p>
+        <p>
+          <a href={mapa.enlace} target="_blank" rel="noopener">{contacto.direccion} · {contacto.barrio}</a>
+        </p>
       </footer>
     </div>
   </main>
@@ -64,6 +66,7 @@ import { contacto } from "../data/cafeteria";
   }
 
   .pie a {
-    text-decoration: none;
+    text-decoration-color: var(--durazno);
+    text-underline-offset: 3px;
   }
 </style>
