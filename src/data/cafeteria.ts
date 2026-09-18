@@ -1,8 +1,10 @@
 export const contacto = {
   direccion: "Gral. José Gervasio Artigas 3602",
   barrio: "Agronomía, CABA",
-  telefono: "11 4800-0000",
-  telefonoLink: "+541148000000",
+  instagram: "@recafeagronomia_",
+  instagramLink: "https://www.instagram.com/recafeagronomia_",
+  /** Abre el chat de Instagram directo; en el celular abre la app. */
+  instagramChat: "https://ig.me/m/recafeagronomia_",
   desde: "2025",
 };
 
@@ -80,5 +82,5 @@ export const detallesCasa: string[] = [
 ];
 
 export const redes: { texto: string; href: string }[] = [
-  { texto: "Instagram", href: "https://www.instagram.com/recafeagronomia_" },
+  { texto: "Instagram", href: contacto.instagramLink },
 ];
