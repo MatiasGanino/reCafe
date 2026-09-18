@@ -13,9 +13,9 @@
     "clave-panel": "node scripts/clave-panel.mjs"
   },
   "dependencies": {
-    "@astrojs/vercel": "^11.0.8",
+    "@astrojs/vercel": "^11.0.10",
     "@vercel/analytics": "^2.0.1",
-    "astro": "^7.2.9",
+    "astro": "^7.3.3",
     "ioredis": "^5.11.1"
   },
   "allowScripts": {
